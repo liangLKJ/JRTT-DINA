@@ -1,0 +1,39 @@
+model{
+for (n in 1:N) {
+  for (i in 1:I) {
+     for (k in 1:K) {
+      w[n, i, k] <- pow(alpha[n, k], Q[i, k])
+    }
+      logit(prob[n, i]) <- beta[i]+delta[i] * prod(w[n, i,])
+      Y[n, i] ~ dbern(prob[n, i]) 
+    }
+}
+for (n in 1:N) {  
+  for (k in 1:K) {
+    logit(att_prob[n, k]) <- gamma[k] * theta[n] - lambda[k]
+    alpha[n,k] ~ dbern(att_prob[n, k])}}    
+ for (n in 1:N){
+   theta[n] ~ dnorm(0,1)}
+  for (i in 1:I){
+    item_parameter[i,1:2] ~ dmnorm(item_mu[1:2],item_den[1:2,1:2])
+    beta[i] <- item_parameter[i,1]
+    delta[i] <- item_parameter[i,2]
+    logit(g[i]) <- beta[i]
+    logit(ns[i]) <- beta[i]+delta[i]
+    s[i] <- 1-ns[i]
+}
+  for (k in 1:K){
+    lambda[k] ~ dnorm(0,4)
+    gamma[k] ~ dnorm(0,4) T(0, )
+  }
+  item_mu[1] ~ dnorm(-0.35075,2)
+  item_mu[2] ~ dnorm(1.91431,2) T(0, )
+  R[1,1] <- 1
+  R[2,2] <- 1
+  R[1,2] <- 0
+  R[2,1] <- 0
+  item_den[1:2,1:2] ~ dwish(R[1:2,1:2],2)
+  sigma_item[1:2,1:2] <- inverse(item_den[1:2,1:2])
+}
+
+
